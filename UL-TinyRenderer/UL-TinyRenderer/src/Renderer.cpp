@@ -10,8 +10,19 @@ Renderer::Renderer(int width, int height)
 
 void Renderer::renderLine(int x1, int y1, int x2, int y2)
 {
-	// If the first point is at the right of the second point
-	// Swap the two point coordinates for the loop.
+	bool swapped = false;
+
+	// If the line is higher than longer,
+	// Make it longer than higher.
+	if (std::abs(x1 - x2) < std::abs(y1 - y2))
+	{
+		std::swap(x1, y1);
+		std::swap(x2, y2);
+		swapped = true;
+	}
+
+	// If the first point is at the right of the second point,
+	// swap the two point coordinates for the loop.
 	if (x1 > x2)
 	{
 		std::swap(x1, x2);
@@ -24,7 +35,15 @@ void Renderer::renderLine(int x1, int y1, int x2, int y2)
 		float t = (float)(x - x1) / (float)(x2 - x1);
 		int y = y1 * (1.0f - t) + y2 * t;
 
-		m_renderOutput.set(x, y, white);
+		// If the coordinates have been swapped, swap them again.
+		if (swapped) {
+
+			m_renderOutput.set(y, x, white);
+		}
+		else
+		{
+			m_renderOutput.set(x, y, white);
+		}
 	}
 }
 
