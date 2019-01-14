@@ -6,7 +6,7 @@ The original assignment repository can be found here: [A brief computer graphics
 **Note:** This repository is entierly managed via Visual Studio.
 
 # Roadmap
-- [ ] Render a single arbitrary line.  
+- [X] Render a single arbitrary line.  
 - [ ] Load an .obj file.
 - [ ] Do a simple wireframe rendering without projection.  
 - [ ] Fill a triangle.
