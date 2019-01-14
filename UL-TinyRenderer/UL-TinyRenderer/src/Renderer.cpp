@@ -10,6 +10,14 @@ Renderer::Renderer(int width, int height)
 
 void Renderer::renderLine(int x1, int y1, int x2, int y2)
 {
+	// If the first point is at the right of the second point
+	// Swap the two point coordinates for the loop.
+	if (x1 > x2)
+	{
+		std::swap(x1, x2);
+		std::swap(y1, y2);
+	}
+
 	for (int x = x1; x <= x2; x++)
 	{
 		// Linear interpolation.
