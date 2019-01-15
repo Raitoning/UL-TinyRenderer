@@ -1,5 +1,7 @@
 #include <iostream>
 #include "Renderer.h"
+#include "OBJFile.h"
+#include "Vector3.h"
 
 int main()
 {
@@ -14,5 +16,10 @@ int main()
 	renderer.renderLine(128, 255, 255, 0);
 	renderer.saveRender("Output.tga");
 
+	OBJFile file("african_head.obj");
+
+	std::vector<Vector3> vertices = file.getVertices();
+
+	std::cout << "Press any key to continue..." << std::endl;
 	std::cin.get();
 }
