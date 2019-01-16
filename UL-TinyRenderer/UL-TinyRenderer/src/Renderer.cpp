@@ -8,6 +8,35 @@ Renderer::Renderer(int width, int height)
 	m_renderOutput = TGAImage(m_width, m_height, TGAImage::Format::RGB);
 }
 
+void Renderer::renderWireframe(OBJFile file)
+{
+	std::vector<Vector3> vertices = file.getVertices();
+	std::vector<Vector3> faces = file.getFaces();
+
+	for (Vector3 v : faces)
+	{
+		renderLine(((vertices[v.getX() - 1].getX() + 1.f) / 2) * m_width,
+			((vertices[v.getX() - 1].getY() + 1.f) / 2) * m_width,
+			((vertices[v.getY() - 1].getX() + 1.f) / 2) * m_width,
+			((vertices[v.getY() - 1].getY() + 1.f) / 2) * m_width
+		);
+
+		renderLine(((vertices[v.getX() - 1].getX() + 1.f) / 2) * m_width,
+			((vertices[v.getX() - 1].getY() + 1.f) / 2) * m_width,
+			((vertices[v.getZ() - 1].getX() + 1.f) / 2) * m_width,
+			((vertices[v.getZ() - 1].getY() + 1.f) / 2) * m_width
+		);
+
+		renderLine(((vertices[v.getY() - 1].getX() + 1.f) / 2) * m_width,
+			((vertices[v.getY() - 1].getY() + 1.f) / 2) * m_width,
+			((vertices[v.getZ() - 1].getX() + 1.f) / 2) * m_width,
+			((vertices[v.getZ() - 1].getY() + 1.f) / 2) * m_width
+		);
+	}
+
+	m_renderOutput.flip_vertically();
+}
+
 void Renderer::renderLine(int x1, int y1, int x2, int y2)
 {
 	bool swapped = false;
@@ -36,8 +65,8 @@ void Renderer::renderLine(int x1, int y1, int x2, int y2)
 		int y = y1 * (1.0f - t) + y2 * t;
 
 		// If the coordinates have been swapped, swap them again.
-		if (swapped) {
-
+		if (swapped)
+		{
 			m_renderOutput.set(y, x, white);
 		}
 		else
