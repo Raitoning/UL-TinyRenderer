@@ -10,7 +10,8 @@ int main()
 
 	OBJFile file("african_head.obj");
 
-	renderer.renderWireframe(file);
+	//renderer.renderWireframe(file);
+	renderer.renderTriangle(file);
 	renderer.saveRender("Output.tga");
 
 	std::cout << "Press any key to continue..." << std::endl;
