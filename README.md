@@ -9,7 +9,7 @@ The original assignment repository can be found here: [A brief computer graphics
 - [X] Render a single arbitrary line.  
 - [X] Load an .obj file.
 - [X] Do a simple wireframe rendering without projection.  
-- [ ] Fill triangles with a random color.  
+- [X] Fill triangles with a random color.  
 - [ ] Do a "solid" render of an .obj file. (Triangles filled, no textures)  
 - [ ] Add a projection function.  
 - [ ] Add diffuse texture rendering.  
