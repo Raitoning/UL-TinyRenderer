@@ -7,11 +7,11 @@ The original assignment repository can be found here: [A brief computer graphics
 
 # Roadmap
 - [X] Render a single arbitrary line.  
-- [ ] Load an .obj file.
-- [ ] Do a simple wireframe rendering without projection.  
-- [ ] Fill a triangle.
-- [ ] Do a "solid" render of an .obj file. (Triangles filled, no textures)
+- [X] Load an .obj file.
+- [X] Do a simple wireframe rendering without projection.  
+- [ ] Fill triangles with a random color.  
+- [ ] Do a "solid" render of an .obj file. (Triangles filled, no textures)  
 - [ ] Add a projection function.  
-- [ ] Add diffuse texture rendering.
-- [ ] Add a lighting pass.
+- [ ] Add diffuse texture rendering.  
+- [ ] Add a lighting pass.  
 - [ ] Add additionnal map passes. (normal, bump, etc...).  

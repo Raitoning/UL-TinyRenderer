@@ -16,7 +16,7 @@ private:
 public:
 
 	Renderer(int width, int height);
-	void renderWireframe(OBJFile file);
+	void renderWireframe(OBJFile& file);
 	void renderLine(int x1, int y1, int x2, int y2);
 	void saveRender(const char* fileName);
 };

@@ -8,7 +8,7 @@ Renderer::Renderer(int width, int height)
 	m_renderOutput = TGAImage(m_width, m_height, TGAImage::Format::RGB);
 }
 
-void Renderer::renderWireframe(OBJFile file)
+void Renderer::renderWireframe(OBJFile& file)
 {
 	std::vector<Vector3> vertices = file.getVertices();
 	std::vector<Vector3> faces = file.getFaces();
