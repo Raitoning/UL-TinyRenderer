@@ -2,6 +2,7 @@
 
 #include "TGAImage.h"
 #include "OBJFile.h"
+#include "Light.h"
 
 class Renderer
 {
@@ -12,18 +13,20 @@ private:
 	TGAImage m_renderOutput;
 	int m_width;
 	int m_height;
-
+	std::vector<Light> m_lights;
 
 	// Functions.
 public:
 
 	Renderer(int width, int height);
-	void renderWireframe(OBJFile& file);
-	void renderFile(OBJFile& file);
-	void saveRender(const char* fileName);
+	void RenderWireframe(OBJFile& file);
+	void RenderFile(OBJFile& file);
+	void SaveRender(const char* fileName);
+	void AddLight(Light& light);
 
 private:
 
-	void renderLine(int x1, int y1, int x2, int y2);
-	void renderTriangle(Vector3 a, Vector3 b, Vector3 c, TGAColor color);
+	void RenderLine(int x1, int y1, int x2, int y2);
+	float Lighting(Vector3& a, Vector3& b, Vector3& c, Light& light);
+	void RenderTriangle(Vector3& a, Vector3& b, Vector3& c, TGAColor& color);
 };

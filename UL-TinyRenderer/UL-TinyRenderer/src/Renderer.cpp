@@ -1,4 +1,7 @@
 ﻿#include "Renderer.h"
+#include <iostream>
+
+#define LOG(X) std::cout << X << std::endl
 
 // Public functions.
 
@@ -10,72 +13,106 @@ Renderer::Renderer(int width, int height)
 	m_renderOutput = TGAImage(m_width, m_height, TGAImage::Format::RGB);
 }
 
-void Renderer::renderWireframe(OBJFile& file)
+void Renderer::RenderWireframe(OBJFile& file)
 {
-	std::vector<Vector3> vertices = file.getVertices();
-	std::vector<Vector3> faces = file.getFaces();
+	std::vector<Vector3> vertices = file.GetVertices();
+	std::vector<Vector3> faces = file.GetFaces();
 
 	for (Vector3 v : faces)
 	{
-		renderLine(((vertices[v.getX() - 1].getX() + 1.f) / 2) * m_width,
-			((vertices[v.getX() - 1].getY() + 1.f) / 2) * m_width,
-			((vertices[v.getY() - 1].getX() + 1.f) / 2) * m_width,
-			((vertices[v.getY() - 1].getY() + 1.f) / 2) * m_width
+		RenderLine(((vertices[v.GetX() - 1].GetX() + 1.f) / 2) * m_width,
+			((vertices[v.GetX() - 1].GetY() + 1.f) / 2) * m_width,
+			((vertices[v.GetY() - 1].GetX() + 1.f) / 2) * m_width,
+			((vertices[v.GetY() - 1].GetY() + 1.f) / 2) * m_width
 		);
 
-		renderLine(((vertices[v.getX() - 1].getX() + 1.f) / 2) * m_width,
-			((vertices[v.getX() - 1].getY() + 1.f) / 2) * m_width,
-			((vertices[v.getZ() - 1].getX() + 1.f) / 2) * m_width,
-			((vertices[v.getZ() - 1].getY() + 1.f) / 2) * m_width
+		RenderLine(((vertices[v.GetX() - 1].GetX() + 1.f) / 2) * m_width,
+			((vertices[v.GetX() - 1].GetY() + 1.f) / 2) * m_width,
+			((vertices[v.GetZ() - 1].GetX() + 1.f) / 2) * m_width,
+			((vertices[v.GetZ() - 1].GetY() + 1.f) / 2) * m_width
 		);
 
-		renderLine(((vertices[v.getY() - 1].getX() + 1.f) / 2) * m_width,
-			((vertices[v.getY() - 1].getY() + 1.f) / 2) * m_width,
-			((vertices[v.getZ() - 1].getX() + 1.f) / 2) * m_width,
-			((vertices[v.getZ() - 1].getY() + 1.f) / 2) * m_width
+		RenderLine(((vertices[v.GetY() - 1].GetX() + 1.f) / 2) * m_width,
+			((vertices[v.GetY() - 1].GetY() + 1.f) / 2) * m_width,
+			((vertices[v.GetZ() - 1].GetX() + 1.f) / 2) * m_width,
+			((vertices[v.GetZ() - 1].GetY() + 1.f) / 2) * m_width
 		);
 	}
-
-	m_renderOutput.flip_vertically();
 }
 
-void Renderer::renderFile(OBJFile& file)
+void Renderer::RenderFile(OBJFile& file)
 {
-	std::vector<Vector3> vertices = file.getVertices();
-	std::vector<Vector3> faces = file.getFaces();
+	std::vector<Vector3> vertices = file.GetVertices();
+	std::vector<Vector3> faces = file.GetFaces();
 
 	for (Vector3 v : faces)
 	{
-		Vector3 a(((vertices[v.getX() - 1].getX() + 1.f) / 2) * m_width,
-			((vertices[v.getX() - 1].getY() + 1.f) / 2) * m_width,
-			((vertices[v.getX() - 1].getZ() + 1.f) / 2) * m_width
+		Vector3 a(((vertices[v.GetX() - 1].GetX() + 1.f) / 2) * m_width,
+			((vertices[v.GetX() - 1].GetY() + 1.f) / 2) * m_width,
+			((vertices[v.GetX() - 1].GetZ() + 1.f) / 2) * m_width
 		);
 
-		Vector3 b(((vertices[v.getY() - 1].getX() + 1.f) / 2) * m_width,
-			((vertices[v.getY() - 1].getY() + 1.f) / 2) * m_width,
-			((vertices[v.getY() - 1].getZ() + 1.f) / 2) * m_width
+		Vector3 b(((vertices[v.GetY() - 1].GetX() + 1.f) / 2) * m_width,
+			((vertices[v.GetY() - 1].GetY() + 1.f) / 2) * m_width,
+			((vertices[v.GetY() - 1].GetZ() + 1.f) / 2) * m_width
 		);
 
-		Vector3 c(((vertices[v.getZ() - 1].getX() + 1.f) / 2) * m_width,
-			((vertices[v.getZ() - 1].getY() + 1.f) / 2) * m_width,
-			((vertices[v.getZ() - 1].getZ() + 1.f) / 2) * m_width
+		Vector3 c(((vertices[v.GetZ() - 1].GetX() + 1.f) / 2) * m_width,
+			((vertices[v.GetZ() - 1].GetY() + 1.f) / 2) * m_width,
+			((vertices[v.GetZ() - 1].GetZ() + 1.f) / 2) * m_width
 		);
 
-		TGAColor randomColor(std::rand() * 255, std::rand() * 255, std::rand() * 255);
+		float redIntensity = 0.0f;
+		float greenIntensity = 0.0f;
+		float blueIntensity = 0.0f;
 
-		renderTriangle(a, b, c, randomColor);
+		for (Light l : m_lights)
+		{
+			float lightIntensity = Lighting(a, b, c, l);
+
+			if (lightIntensity > 0.0f)
+			{
+				redIntensity += lightIntensity * l.GetColor().GetX() * l.GetIntensity();
+				greenIntensity += lightIntensity * l.GetColor().GetY() * l.GetIntensity();
+				blueIntensity += lightIntensity * l.GetColor().GetZ() * l.GetIntensity();
+			}
+		}
+
+
+		if (redIntensity > 0.0f || greenIntensity > 0.0f || blueIntensity > 0.0f)
+		{
+			if (redIntensity > 1.0f)
+			{
+				redIntensity = 1.0f;
+			}
+			if (greenIntensity > 1.0f)
+			{
+				greenIntensity = 1.0f;
+			}
+			if (blueIntensity > 1.0f)
+			{
+				blueIntensity = 1.0f;
+			}
+			TGAColor color(redIntensity * 255, greenIntensity * 255, blueIntensity * 255);
+			RenderTriangle(a, b, c, color);
+		}
 	}
 }
 
-void Renderer::saveRender(const char * fileName)
+void Renderer::SaveRender(const char * fileName)
 {
 	m_renderOutput.flip_vertically();
 	m_renderOutput.write_tga_file(fileName);
 }
 
+void Renderer::AddLight(Light& light)
+{
+	m_lights.push_back(light);
+}
+
 // Private functions.
 
-void Renderer::renderLine(int x1, int y1, int x2, int y2)
+void Renderer::RenderLine(int x1, int y1, int x2, int y2)
 {
 	bool swapped = false;
 
@@ -114,49 +151,65 @@ void Renderer::renderLine(int x1, int y1, int x2, int y2)
 	}
 }
 
+float Renderer::Lighting(Vector3& a, Vector3& b, Vector3& c, Light& light)
+{
+	Vector3 ab = b - a;
+	Vector3 ac = c - a;
+
+	Vector3 normal = ab ^ ac;
+
+	normal.Normalize();
+
+	float dot = normal.GetX() * light.GetDirection().GetX() +
+		normal.GetY() * light.GetDirection().GetY() +
+		normal.GetZ() * light.GetDirection().GetZ();
+
+	return dot;
+}
+
 // TODO: Fix my own code instead of using the teacher's one.
 // TODO: Fix artefacts.
-void Renderer::renderTriangle(Vector3 a, Vector3 b, Vector3 c, TGAColor color)
+void Renderer::RenderTriangle(Vector3& a, Vector3& b, Vector3& c, TGAColor& color)
 {
-	if (b.getY() > a.getY())
+	if (b.GetY() > a.GetY())
 	{
 		std::swap(b, a);
 	}
-	if (c.getY() > a.getY())
+	if (c.GetY() > a.GetY())
 	{
 		std::swap(c, a);
 	}
-	if (c.getY() > b.getY())
+	if (c.GetY() > b.GetY())
 	{
 		std::swap(b, c);
 	}
 
-	float height = a.getY() - c.getY();
+	float height = a.GetY() - c.GetY();
 
 	//float x;
 
-	//if (c.getX() > a.getX())
+	//if (c.GetX() > a.GetX())
 	//{
-	//	x = (a.getX() - c.getX()) * ((b.getY() - c.getY()) / (a.getY() - c.getY()));
-	//	x += c.getX();
+	//	x = (a.GetX() - c.GetX()) * ((b.GetY() - c.GetY()) / (a.GetY() - c.GetY()));
+	//	x += c.GetX();
 	//}
 	//else
 	//{
-	//	x = (c.getX() - a.getX()) * ((b.getY() - c.getY()) / (a.getY() - c.getY()));
-	//	x += a.getX();
+	//	x = (c.GetX() - a.GetX()) * ((b.GetY() - c.GetY()) / (a.GetY() - c.GetY()));
+	//	x += a.GetX();
 	//}
 
 	//Vector3 d(x,
-	//	b.getY(),
-	//	(a.getZ() - c.getZ()) * (b.getY() - c.getY()) / (a.getY() - c.getY())
+	//	b.GetY(),
+	//	(a.GetZ() - c.GetZ()) * (b.GetY() - c.GetY()) / (a.GetY() - c.GetY())
 	//);
 
-	float partHeight = b.getY() - c.getY() + 1.0f;
-	//for (int i = c.getY(); i <= b.getY(); i++)
+	float partHeight = b.GetY() - c.GetY() + 1.0f;
+	//for (int i = c.GetY(); i <= b.GetY(); i++)
 	//{
-	//	float t = (float)(i - c.getY()) / (float)(b.getY() - c.getY());
-	//	float xMin = c.getX() * (1.0f - t) + b.getX() * t;
-	//	float xMax = c.getX() * (1.0f - t) + (d.getX() * t);
+	//	float t = (float)(i - c.GetY()) / (float)(b.GetY() - c.GetY());
+	//	float xMin = c.GetX() * (1.0f - t) + b.GetX() * t;
+	//	float xMax = c.GetX() * (1.0f - t) + (d.GetX() * t);
 
 	//	if (xMin > xMax)
 	//	{
@@ -169,13 +222,13 @@ void Renderer::renderTriangle(Vector3 a, Vector3 b, Vector3 c, TGAColor color)
 	//	}
 	//}
 
-	for (int y = c.getY(); y <= b.getY(); y++)
+	for (int y = c.GetY(); y <= b.GetY(); y++)
 	{
-		float alpha = (float)(y - c.getY()) / height;
-		float beta = (float)(y - c.getY()) / partHeight;
+		float alpha = (float)(y - c.GetY()) / height;
+		float beta = (float)(y - c.GetY()) / partHeight;
 
-		float xMin = c.getX() + (a.getX() - c.getX()) * alpha;
-		float xMax = c.getX() + (b.getX() - c.getX()) * beta;
+		float xMin = c.GetX() + (a.GetX() - c.GetX()) * alpha;
+		float xMax = c.GetX() + (b.GetX() - c.GetX()) * beta;
 
 		if (xMin > xMax)
 		{
@@ -188,14 +241,14 @@ void Renderer::renderTriangle(Vector3 a, Vector3 b, Vector3 c, TGAColor color)
 		}
 	}
 
-	partHeight = a.getY() - b.getY() + 1.0f;
-	for (int y = b.getY(); y <= a.getY(); y++)
+	partHeight = a.GetY() - b.GetY() + 1.0f;
+	for (int y = b.GetY(); y <= a.GetY(); y++)
 	{
-		float alpha = (float)(y - c.getY()) / height;
-		float beta = (float)(y - b.getY()) / partHeight;
+		float alpha = (float)(y - c.GetY()) / height;
+		float beta = (float)(y - b.GetY()) / partHeight;
 
-		float xMin = c.getX() + (a.getX() - c.getX()) * alpha;
-		float xMax = b.getX() + (a.getX() - b.getX()) * beta;
+		float xMin = c.GetX() + (a.GetX() - c.GetX()) * alpha;
+		float xMax = b.GetX() + (a.GetX() - b.GetX()) * beta;
 
 		if (xMin > xMax)
 		{
@@ -208,11 +261,11 @@ void Renderer::renderTriangle(Vector3 a, Vector3 b, Vector3 c, TGAColor color)
 		}
 	}
 
-	//for (int i = a.getY(); i >= b.getY(); i--)
+	//for (int i = a.GetY(); i >= b.GetY(); i--)
 	//{
-	//	float t = (float)(i - a.getY()) / (float)(d.getY() - a.getY());
-	//	float xMin = a.getX() * (1.0f - t) + b.getX() * t;
-	//	float xMax = a.getX() * (1.0f - t) + (d.getX() * t);
+	//	float t = (float)(i - a.GetY()) / (float)(d.GetY() - a.GetY());
+	//	float xMin = a.GetX() * (1.0f - t) + b.GetX() * t;
+	//	float xMax = a.GetX() * (1.0f - t) + (d.GetX() * t);
 
 	//	if (xMin > xMax)
 	//	{

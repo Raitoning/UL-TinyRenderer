@@ -7,18 +7,17 @@ class OBJFile
 {
 
 private:
-	std::vector<Vector3> vertices;
+	std::vector<Vector3> m_vertices;
 
 	// TODO: Find a better way to store infos about faces.
-	std::vector<Vector3> faces;
+	std::vector<Vector3> m_faces;
 
 public:
 	OBJFile(const char * fileName);
-	~OBJFile();
 
-	const std::vector<Vector3>& getVertices();
-	const std::vector<Vector3>& getFaces();
+	const std::vector<Vector3>& GetVertices();
+	const std::vector<Vector3>& GetFaces();
 
 private:
-	const std::vector<std::string> explode(const std::string& s, const char& c);
+	const std::vector<std::string> Explode(const std::string& s, const char& c);
 };
