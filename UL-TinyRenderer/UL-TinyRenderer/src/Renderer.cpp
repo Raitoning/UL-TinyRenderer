@@ -47,19 +47,19 @@ void Renderer::RenderFile(OBJFile& file)
 
 	for (Vector3 v : faces)
 	{
-		Vector3 a(((vertices[v.GetX() - 1].GetX() + 1.f) / 2) * m_width,
-			((vertices[v.GetX() - 1].GetY() + 1.f) / 2) * m_width,
-			((vertices[v.GetX() - 1].GetZ() + 1.f) / 2) * m_width
+		Vector3 a(static_cast<int>(((vertices[v.GetX() - 1].GetX() + 1.f) / 2) * m_width + .5f),
+			  static_cast<int>(((vertices[v.GetX() - 1].GetY() + 1.f) / 2) * m_width + .5f),
+			                   ((vertices[v.GetX() - 1].GetZ() + 1.f) / 2) * m_width
 		);
 
-		Vector3 b(((vertices[v.GetY() - 1].GetX() + 1.f) / 2) * m_width,
-			((vertices[v.GetY() - 1].GetY() + 1.f) / 2) * m_width,
-			((vertices[v.GetY() - 1].GetZ() + 1.f) / 2) * m_width
+		Vector3 b(static_cast<int>(((vertices[v.GetY() - 1].GetX() + 1.f) / 2) * m_width + .5f),
+			  static_cast<int>(((vertices[v.GetY() - 1].GetY() + 1.f) / 2) * m_width + .5f),
+			                   ((vertices[v.GetY() - 1].GetZ() + 1.f) / 2) * m_width
 		);
 
-		Vector3 c(((vertices[v.GetZ() - 1].GetX() + 1.f) / 2) * m_width,
-			((vertices[v.GetZ() - 1].GetY() + 1.f) / 2) * m_width,
-			((vertices[v.GetZ() - 1].GetZ() + 1.f) / 2) * m_width
+		Vector3 c(static_cast<int>(((vertices[v.GetZ() - 1].GetX() + 1.f) / 2) * m_width + .5f),
+			  static_cast<int>(((vertices[v.GetZ() - 1].GetY() + 1.f) / 2) * m_width + .5f),
+			                   ((vertices[v.GetZ() - 1].GetZ() + 1.f) / 2) * m_width
 		);
 
 		float redIntensity = 0.0f;
