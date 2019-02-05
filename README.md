@@ -5,13 +5,17 @@ This repository is my homework for a 3D software offline rendering engine assign
 The original assignment repository can be found here: [A brief computer graphics / rendering course](https://github.com/ssloy/tinyrenderer)  
 **Note:** This repository is entierly managed via Visual Studio.
 
+# Known issues  
+- Some artefacts appears when drawing lines inside triangles when a side is near horizontal.
+
 # Roadmap
 - [X] Render a single arbitrary line.  
-- [ ] Load an .obj file.
-- [ ] Do a simple wireframe rendering without projection.  
-- [ ] Fill a triangle.
-- [ ] Do a "solid" render of an .obj file. (Triangles filled, no textures)
+- [X] Load an .obj file.
+- [X] Do a simple wireframe rendering without projection.  
+- [X] Fill triangles with a random color.  
+- [X] Do a "solid" render of an .obj file. (Triangles filled, no textures)  
+- [X] Add a lighting pass. (Extra: Add the support for multiple lights.)  
+- [X] Add a Z-Buffer.  
+- [ ] Add diffuse texture rendering.  
 - [ ] Add a projection function.  
-- [ ] Add diffuse texture rendering.
-- [ ] Add a lighting pass.
 - [ ] Add additionnal map passes. (normal, bump, etc...).  
