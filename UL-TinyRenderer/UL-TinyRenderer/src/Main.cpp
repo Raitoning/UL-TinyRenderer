@@ -27,6 +27,8 @@ int main()
 	renderer.AddLight(greenLight);
 	renderer.AddLight(blueLight);
 
+	renderer.SetAmbientLighting(0.125f, 0.125f, 0.125f);
+
 	OBJFile file("african_head.obj");
 
 	renderer.RenderFile(file);

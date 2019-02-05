@@ -15,6 +15,7 @@ private:
 	int m_height;
 	std::vector<Light> m_lights;
 	std::vector<float> m_zBuffer;
+	Vector3 m_ambientLighting;
 
 	// Functions.
 public:
@@ -24,6 +25,7 @@ public:
 	void RenderFile(OBJFile& file);
 	void SaveRender(const char* fileName);
 	void AddLight(Light& light);
+	void SetAmbientLighting(float r, float g, float b);
 
 private:
 

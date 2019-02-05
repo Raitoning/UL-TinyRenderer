@@ -14,6 +14,8 @@ Renderer::Renderer(int width, int height)
 	m_zBuffer = std::vector<float>(m_width * m_height);
 
 	std::fill(m_zBuffer.begin(), m_zBuffer.end(), std::numeric_limits<float>().max());
+
+	m_ambientLighting = Vector3(0, 0, 0);
 }
 
 void Renderer::RenderWireframe(OBJFile& file)
@@ -65,9 +67,9 @@ void Renderer::RenderFile(OBJFile& file)
 			((vertices[v.GetZ() - 1].GetZ() + 1.f) / 2) * m_width
 		);
 
-		float redIntensity = 0.0f;
-		float greenIntensity = 0.0f;
-		float blueIntensity = 0.0f;
+		float redIntensity = m_ambientLighting.GetX();
+		float greenIntensity = m_ambientLighting.GetY();
+		float blueIntensity = m_ambientLighting.GetZ();
 
 		for (Light l : m_lights)
 		{
@@ -122,6 +124,11 @@ void Renderer::SaveRender(const char * fileName)
 void Renderer::AddLight(Light& light)
 {
 	m_lights.push_back(light);
+}
+
+void Renderer::SetAmbientLighting(float r, float g, float b)
+{
+	m_ambientLighting = Vector3(r, g, b);
 }
 
 // Private functions.
