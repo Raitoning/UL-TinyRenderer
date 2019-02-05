@@ -14,6 +14,7 @@ private:
 	int m_width;
 	int m_height;
 	std::vector<Light> m_lights;
+	std::vector<float> m_zBuffer;
 
 	// Functions.
 public:
@@ -28,5 +29,8 @@ private:
 
 	void RenderLine(int x1, int y1, int x2, int y2);
 	float Lighting(Vector3& a, Vector3& b, Vector3& c, Light& light);
+	Vector3 BarycentricCoordinates(Vector3& a, Vector3& b, Vector3& c, Vector3& p);
 	void RenderTriangle(Vector3& a, Vector3& b, Vector3& c, TGAColor& color);
+	float MinCoordinates(float a, float b, float c);
+	float MaxCoordinates(float a, float b, float c);
 };

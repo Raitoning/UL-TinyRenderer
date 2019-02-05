@@ -13,15 +13,15 @@ int main()
 
 	Light redLight;
 	redLight.SetColor(1.0f, 0.0f, 0.0f);
-	redLight.SetDirection(-0.25f, 0.0f, 1.0f);
+	redLight.SetDirection(-1.0f, 0.0f, 0.0f);
 
 	Light greenLight;
 	greenLight.SetColor(0.0f, 1.0f, 0.0f);
-	greenLight.SetDirection(0.0f, 0.0f, 1.0f);
+	greenLight.SetDirection(0.0f, 0.0f, -1.0f);
 
 	Light blueLight;
 	blueLight.SetColor(0.0f, 0.0f, 1.0f);
-	blueLight.SetDirection(0.25f, 0.0f, 1.0f);
+	blueLight.SetDirection(1.0f, 0.0f, 0.0f);
 
 	renderer.AddLight(redLight);
 	renderer.AddLight(greenLight);
