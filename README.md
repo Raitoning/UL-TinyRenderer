@@ -5,9 +5,6 @@ This repository is my homework for a 3D software offline rendering engine assign
 The original assignment repository can be found here: [A brief computer graphics / rendering course](https://github.com/ssloy/tinyrenderer)  
 **Note:** This repository is entierly managed via Visual Studio.
 
-# Known issues  
-- Some artefacts appears when drawing lines inside triangles when a side is near horizontal.
-
 # Roadmap
 - [X] Render a single arbitrary line.  
 - [X] Load an .obj file.

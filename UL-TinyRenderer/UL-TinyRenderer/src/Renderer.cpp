@@ -13,7 +13,7 @@ Renderer::Renderer(int width, int height)
 	m_renderOutput = TGAImage(m_width, m_height, TGAImage::Format::RGB);
 	m_zBuffer = std::vector<float>(m_width * m_height);
 
-	std::fill(m_zBuffer.begin(), m_zBuffer.end(), std::numeric_limits<float>().max());
+	std::fill(m_zBuffer.begin(), m_zBuffer.end(), std::numeric_limits<float>().min());
 
 	m_ambientLighting = Vector3(0, 0, 0);
 }
@@ -54,17 +54,17 @@ void Renderer::RenderFile(OBJFile& file)
 	{
 		Vector3 a(static_cast<int>(((vertices[v.GetX() - 1].GetX() + 1.f) / 2) * m_width + .5f),
 			static_cast<int>(((vertices[v.GetX() - 1].GetY() + 1.f) / 2) * m_width + .5f),
-			((vertices[v.GetX() - 1].GetZ() + 1.f) / 2) * m_width
+			(((vertices[v.GetX() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
 		);
 
 		Vector3 b(static_cast<int>(((vertices[v.GetY() - 1].GetX() + 1.f) / 2) * m_width + .5f),
 			static_cast<int>(((vertices[v.GetY() - 1].GetY() + 1.f) / 2) * m_width + .5f),
-			((vertices[v.GetY() - 1].GetZ() + 1.f) / 2) * m_width
+			(((vertices[v.GetY() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
 		);
 
 		Vector3 c(static_cast<int>(((vertices[v.GetZ() - 1].GetX() + 1.f) / 2) * m_width + .5f),
 			static_cast<int>(((vertices[v.GetZ() - 1].GetY() + 1.f) / 2) * m_width + .5f),
-			((vertices[v.GetZ() - 1].GetZ() + 1.f) / 2) * m_width
+			(((vertices[v.GetZ() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
 		);
 
 		float redIntensity = m_ambientLighting.GetX();
@@ -82,7 +82,6 @@ void Renderer::RenderFile(OBJFile& file)
 				blueIntensity += lightIntensity * l.GetColor().GetZ() * l.GetIntensity();
 			}
 		}
-
 
 		if (redIntensity > 0.0f || greenIntensity > 0.0f || blueIntensity > 0.0f)
 		{
@@ -103,16 +102,36 @@ void Renderer::RenderFile(OBJFile& file)
 		}
 	}
 
+	//SaveRender("Output.tga");
 
-	// Drawing the zBuffer.
+	//// Drawing the zBuffer for debug purposes.
+	//// The zBuffer needs to be normalized before output.
+	//float max = std::numeric_limits<float>::min();
 	//for (int y = 0; y < m_height; y++)
 	//{
 	//	for (int x = 0; x < m_width; x++)
 	//	{
-	//		TGAColor zColor(m_zBuffer[x + y * m_width], m_zBuffer[x + y * m_width], m_zBuffer[x + y * m_width]);
+	//		if (m_zBuffer[x + y * m_width] > max)
+	//		{
+	//			max = m_zBuffer[x + y * m_width];
+	//		}
+	//	}
+	//}
+
+	//for (int y = 0; y < m_height; y++)
+	//{
+	//	for (int x = 0; x < m_width; x++)
+	//	{
+	//		TGAColor zColor(
+	//			(m_zBuffer[x + y * m_width] / max) * 255,
+	//			(m_zBuffer[x + y * m_width] / max) * 255,
+	//			(m_zBuffer[x + y * m_width] / max) * 255
+	//		);
+
 	//		m_renderOutput.set(x, y, zColor);
 	//	}
 	//}
+	//SaveRender("zBuffer.tga");
 }
 
 void Renderer::SaveRender(const char * fileName)
@@ -177,64 +196,59 @@ float Renderer::Lighting(Vector3& a, Vector3& b, Vector3& c, Light& light)
 	Vector3 ab = b - a;
 	Vector3 ac = c - a;
 
-	Vector3 normal = ab ^ ac;
+	Vector3 normal = ac ^ ab;
 
 	normal.Normalize();
 
-	float dot = normal.GetX() * light.GetDirection().GetX() +
-		normal.GetY() * light.GetDirection().GetY() +
-		normal.GetZ() * light.GetDirection().GetZ();
+	float intensity = normal * light.GetDirection();
 
-	return dot;
+	return intensity;
 }
 
+// Function from StackOverflow.
+// I was running out of time and spent hours in debugging,
+// and I needed to fix my issues as fast as possible.
+// https://stackoverflow.com/questions/25385361/point-within-a-triangle-barycentric-co-ordinates
 Vector3 Renderer::BarycentricCoordinates(Vector3 & a, Vector3 & b, Vector3 & c, Vector3 & p)
 {
-	Vector3 ab = b - a;
 	Vector3 ac = c - a;
-	Vector3 pa = a - p;
+	Vector3 bc = c - b;
+	Vector3 ca = a - c;
+	Vector3 cb = b - c;
+	Vector3 cp = p - c;
 
-	Vector3 x(ac.GetX(), ab.GetX(), pa.GetX());
-	Vector3 y(ac.GetY(), ab.GetY(), pa.GetY());
+	float det = cb.GetY() * ca.GetX() + bc.GetX() * ca.GetY();
+	float factor_alpha = cb.GetY() * cp.GetX() + bc.GetX() * cp.GetY();
+	float factor_beta = ac.GetY() * cp.GetX() + ca.GetX() * cp.GetY();
+	float alpha = factor_alpha / det;
+	float beta = factor_beta / det;
+	float gamma = 1.0f - alpha - beta;
 
-	Vector3 cross = x ^ y;
-
-	if (cross.GetZ() < 0.0f)
-	{
-		return Vector3(-1, -1, -1);
-	}
-
-	Vector3 barycentrics(
-		1.0f - (cross.GetX() + cross.GetY()) / cross.GetZ(),
-		cross.GetY() / cross.GetZ(),
-		cross.GetX() / cross.GetZ()
-	);
-
-	return barycentrics;
+	return Vector3(alpha, beta, gamma);
 }
 
 void Renderer::RenderTriangle(Vector3& a, Vector3& b, Vector3& c, TGAColor& color)
 {
-	int xMin = MinCoordinates(a.GetX(), b.GetX(), c.GetX());
-	int yMin = MinCoordinates(a.GetY(), b.GetY(), c.GetY());
-	int xMax = MaxCoordinates(a.GetX(), b.GetX(), c.GetX());
-	int yMax = MaxCoordinates(a.GetY(), b.GetY(), c.GetY());
+	int xMin = std::min(a.GetX(), std::min(b.GetX(), c.GetX()));
+	int yMin = std::min(a.GetY(), std::min(b.GetY(), c.GetY()));
+	int xMax = std::max(a.GetX(), std::max(b.GetX(), c.GetX()));
+	int yMax = std::max(a.GetY(), std::max(b.GetY(), c.GetY()));
 
 	for (int x = xMin; x < xMax; x++)
 	{
 		for (int y = yMin; y < yMax; y++)
 		{
-			Vector3 point(x, y, 0);
+			Vector3 point(x, y, 1);
 
 			Vector3 depth = BarycentricCoordinates(a, b, c, point);
 
-			if (depth.GetX() >= 0 && depth.GetY() >= 0 && depth.GetZ() >= 0)
+			if (depth.GetX() >= -0.001f && depth.GetY() >= -0.001f && depth.GetZ() >= -0.001f)
 			{
 				float z = a.GetZ() * depth.GetX();
 				z += b.GetZ() * depth.GetY();
 				z += c.GetZ() * depth.GetZ();
 
-				if (z < m_zBuffer[x + y * m_width])
+				if (z > m_zBuffer[x + y * m_width])
 				{
 					m_zBuffer[x + y * m_width] = z;
 					m_renderOutput.set(x, y, color);
@@ -243,137 +257,3 @@ void Renderer::RenderTriangle(Vector3& a, Vector3& b, Vector3& c, TGAColor& colo
 		}
 	}
 }
-
-float Renderer::MinCoordinates(float a, float b, float c)
-{
-	float min;
-
-	a < b ? min = a : min = b;
-	min < c ? min = min : min = c;
-
-	return min;
-}
-
-float Renderer::MaxCoordinates(float a, float b, float c)
-{
-	float max;
-
-	a > b ? max = a : max = b;
-	max > c ? max = max : max = c;
-
-	return max;
-}
-
-// Legacy triangle drawing method via line sweeping.
-
-//// TODO: Fix my own code instead of using the teacher's one.
-//// TODO: Fix artefacts.
-//void Renderer::RenderTriangle(Vector3& a, Vector3& b, Vector3& c, TGAColor& color)
-//{
-//	if (b.GetY() > a.GetY())
-//	{
-//		std::swap(b, a);
-//	}
-//	if (c.GetY() > a.GetY())
-//	{
-//		std::swap(c, a);
-//	}
-//	if (c.GetY() > b.GetY())
-//	{
-//		std::swap(b, c);
-//	}
-//
-//	float height = a.GetY() - c.GetY();
-//
-//	//float x;
-//
-//	//if (c.GetX() > a.GetX())
-//	//{
-//	//	x = (a.GetX() - c.GetX()) * ((b.GetY() - c.GetY()) / (a.GetY() - c.GetY()));
-//	//	x += c.GetX();
-//	//}
-//	//else
-//	//{
-//	//	x = (c.GetX() - a.GetX()) * ((b.GetY() - c.GetY()) / (a.GetY() - c.GetY()));
-//	//	x += a.GetX();
-//	//}
-//
-//	//Vector3 d(x,
-//	//	b.GetY(),
-//	//	(a.GetZ() - c.GetZ()) * (b.GetY() - c.GetY()) / (a.GetY() - c.GetY())
-//	//);
-//
-//	float partHeight = b.GetY() - c.GetY() + 1.0f;
-//	//for (int i = c.GetY(); i <= b.GetY(); i++)
-//	//{
-//	//	float t = (float)(i - c.GetY()) / (float)(b.GetY() - c.GetY());
-//	//	float xMin = c.GetX() * (1.0f - t) + b.GetX() * t;
-//	//	float xMax = c.GetX() * (1.0f - t) + (d.GetX() * t);
-//
-//	//	if (xMin > xMax)
-//	//	{
-//	//		std::swap(xMin, xMax);
-//	//	}
-//
-//	//	for (int x = xMin; x <= xMax; x++)
-//	//	{
-//	//		m_renderOutput.set(x, i, color);
-//	//	}
-//	//}
-//
-//	for (int y = c.GetY(); y <= b.GetY(); y++)
-//	{
-//		float alpha = (float)(y - c.GetY()) / height;
-//		float beta = (float)(y - c.GetY()) / partHeight;
-//
-//		float xMin = c.GetX() + (a.GetX() - c.GetX()) * alpha;
-//		float xMax = c.GetX() + (b.GetX() - c.GetX()) * beta;
-//
-//		if (xMin > xMax)
-//		{
-//			std::swap(xMin, xMax);
-//		}
-//
-//		for (int x = xMin; x <= xMax; x++)
-//		{
-//			m_renderOutput.set(x, y, color);
-//		}
-//	}
-//
-//	partHeight = a.GetY() - b.GetY() + 1.0f;
-//	for (int y = b.GetY(); y <= a.GetY(); y++)
-//	{
-//		float alpha = (float)(y - c.GetY()) / height;
-//		float beta = (float)(y - b.GetY()) / partHeight;
-//
-//		float xMin = c.GetX() + (a.GetX() - c.GetX()) * alpha;
-//		float xMax = b.GetX() + (a.GetX() - b.GetX()) * beta;
-//
-//		if (xMin > xMax)
-//		{
-//			std::swap(xMin, xMax);
-//		}
-//
-//		for (int x = xMin; x <= xMax; x++)
-//		{
-//			m_renderOutput.set(x, y, color);
-//		}
-//	}
-//
-//	//for (int i = a.GetY(); i >= b.GetY(); i--)
-//	//{
-//	//	float t = (float)(i - a.GetY()) / (float)(d.GetY() - a.GetY());
-//	//	float xMin = a.GetX() * (1.0f - t) + b.GetX() * t;
-//	//	float xMax = a.GetX() * (1.0f - t) + (d.GetX() * t);
-//
-//	//	if (xMin > xMax)
-//	//	{
-//	//		std::swap(xMin, xMax);
-//	//	}
-//
-//	//	for (int x = xMin; x <= xMax; x++)
-//	//	{
-//	//		m_renderOutput.set(x, i, color);
-//	//	}
-//	//}
-//}
