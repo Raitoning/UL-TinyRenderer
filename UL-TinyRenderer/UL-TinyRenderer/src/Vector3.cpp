@@ -30,6 +30,11 @@ Vector3 Vector3::operator*(float factor)
 	return Vector3(m_x * factor, m_y * factor, m_z * factor);
 }
 
+float Vector3::operator*(const Vector3& other)
+{
+	return m_x * other.m_x + m_y * other.m_y + m_z * other.m_z;
+}
+
 Vector3 Vector3::operator/(float factor)
 {
 	return Vector3(m_x /factor, m_y / factor, m_z / factor);
@@ -62,6 +67,21 @@ float Vector3::GetY()
 float Vector3::GetZ()
 {
 	return m_z;
+}
+
+void Vector3::SetX(float value)
+{
+	m_x = value;
+}
+
+void Vector3::SetY(float value)
+{
+	m_y = value;
+}
+
+void Vector3::SetZ(float value)
+{
+	m_z = value;
 }
 
 float Vector3::Magnitude()

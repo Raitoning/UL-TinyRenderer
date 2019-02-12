@@ -11,28 +11,26 @@ int main()
 
 	Renderer renderer(512, 512);
 
-	Light redLight;
-	redLight.SetColor(1.0f, 0.0f, 0.0f);
-	redLight.SetDirection(-1.0f, 0.0f, 0.0f);
-
-	Light greenLight;
-	greenLight.SetColor(0.0f, 1.0f, 0.0f);
-	greenLight.SetDirection(0.0f, 0.0f, -1.0f);
+	Light whiteLight;
+	whiteLight.SetColor(1.0f, 1.0f, 1.0f);
+	whiteLight.SetDirection(0.0f, 0.0f, -1.0f);
 
 	Light blueLight;
 	blueLight.SetColor(0.0f, 0.0f, 1.0f);
-	blueLight.SetDirection(1.0f, 0.0f, 0.0f);
+	blueLight.SetDirection(1.0f, 0.0f, -1.0f);
 
-	renderer.AddLight(redLight);
-	renderer.AddLight(greenLight);
+	Light redLight;
+	redLight.SetColor(1.0f, 0.0f, 0.0f);
+	redLight.SetDirection(-1.0f, 0.0f, -1.0f);
+
+	renderer.AddLight(whiteLight);
 	renderer.AddLight(blueLight);
-
+	renderer.AddLight(redLight);
 	renderer.SetAmbientLighting(0.125f, 0.125f, 0.125f);
 
 	OBJFile file("african_head.obj");
 
 	renderer.RenderFile(file);
-	// renderer.RenderWireframe(file);
 	renderer.SaveRender("Output.tga");
 
 	LOG("Press any key to continue...");

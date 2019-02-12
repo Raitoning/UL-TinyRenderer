@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include "TGAImage.h"
 #include "OBJFile.h"
 #include "Light.h"
@@ -33,6 +34,4 @@ private:
 	float Lighting(Vector3& a, Vector3& b, Vector3& c, Light& light);
 	Vector3 BarycentricCoordinates(Vector3& a, Vector3& b, Vector3& c, Vector3& p);
 	void RenderTriangle(Vector3& a, Vector3& b, Vector3& c, TGAColor& color);
-	float MinCoordinates(float a, float b, float c);
-	float MaxCoordinates(float a, float b, float c);
 };
