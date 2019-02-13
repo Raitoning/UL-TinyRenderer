@@ -49,7 +49,10 @@ void Renderer::RenderFile(OBJFile& file)
 {
 	std::vector<Vector3> vertices = file.GetVertices();
 	std::vector<Vector3> faces = file.GetFaces();
+	std::vector<Vector3> textels = file.GetTextels();
 	std::vector<Vector3> texturesCoordinates = file.GetTextureCoordinates();
+
+	int i = 0;
 
 	for (Vector3 vec : faces)
 	{
@@ -68,9 +71,9 @@ void Renderer::RenderFile(OBJFile& file)
 			(((vertices[vec.GetZ() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
 		);
 
-		Vector3 u = texturesCoordinates[vec.GetX() - 1];
-		Vector3 v = texturesCoordinates[vec.GetY() - 1];
-		Vector3 w = texturesCoordinates[vec.GetZ() - 1];
+		Vector3 u = texturesCoordinates[textels[i].GetX() - 1];
+		Vector3 v = texturesCoordinates[textels[i].GetY() - 1];
+		Vector3 w = texturesCoordinates[textels[i].GetZ() - 1];
 
 		float redIntensity = m_ambientLighting.GetX();
 		float greenIntensity = m_ambientLighting.GetY();
@@ -105,13 +108,14 @@ void Renderer::RenderFile(OBJFile& file)
 			TGAColor color(redIntensity * 255, greenIntensity * 255, blueIntensity * 255);
 			RenderTriangle(a, b, c, u, v, w, color);
 		}
+		i++;
 	}
 
-	//SaveRender("Output.tga");
+	// SaveRender("Output.tga");
 
-	//// Drawing the zBuffer for debug purposes.
-	//// The zBuffer needs to be normalized before output.
-	//float max = std::numeric_limits<float>::min();
+	// Drawing the zBuffer for debug purposes.
+	// The zBuffer needs to be normalized before output.
+	// float max = std::numeric_limits<float>::min();
 	//for (int y = 0; y < m_height; y++)
 	//{
 	//	for (int x = 0; x < m_width; x++)
@@ -158,6 +162,7 @@ void Renderer::SetAmbientLighting(float r, float g, float b)
 void Renderer::SetDiffuseTexture(TGAImage texture)
 {
 	m_diffuseTexture = texture;
+	m_diffuseTexture.flip_vertically();
 }
 
 // Private functions.
@@ -269,8 +274,6 @@ void Renderer::RenderTriangle(Vector3& a, Vector3& b, Vector3& c, Vector3& u, Ve
 					vv += v.GetY() * depth.GetY();
 					vv += w.GetY() * depth.GetZ();
 					vv *= (float)m_diffuseTexture.get_height();
-
-					// LOG("uu: " << uu << "; vv: " << vv);
 
 					m_zBuffer[x + y * m_width] = z;
 					TGAColor diffuse(m_diffuseTexture.get(uu, vv));

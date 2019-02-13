@@ -9,7 +9,7 @@ int main()
 {
 	std::cout << "Hello World!" << std::endl;
 
-	Renderer renderer(1024, 1024);
+	Renderer renderer(512, 512);
 
 	Light whiteLight;
 	whiteLight.SetColor(1.0f, 1.0f, 1.0f);

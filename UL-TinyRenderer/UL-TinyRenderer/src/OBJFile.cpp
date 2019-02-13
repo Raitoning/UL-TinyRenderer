@@ -26,7 +26,7 @@ OBJFile::OBJFile(const char* fileName)
 				m_vertices.push_back(Vector3(x, y, z));
 			}
 
-			if (line.find("vt ", 0) == 0)
+			if (line.find("vt  ", 0) == 0)
 			{
 				std::vector<std::string> textureCoordinates = Explode(line, ' ');
 
@@ -39,14 +39,18 @@ OBJFile::OBJFile(const char* fileName)
 
 			if (line.find("f ", 0) == 0)
 			{
-				std::vector<std::string> vertex;
 				std::vector<std::string> face = Explode(line, ' ');
 
 				float x = std::atof(Explode(face[1], '/')[0].c_str());
 				float y = std::atof(Explode(face[2], '/')[0].c_str());
 				float z = std::atof(Explode(face[3], '/')[0].c_str());
 
+				float u = std::atof(Explode(face[1], '/')[1].c_str());
+				float v = std::atof(Explode(face[2], '/')[1].c_str());
+				float w = std::atof(Explode(face[3], '/')[1].c_str());
+
 				m_faces.push_back(Vector3(x, y, z));
+				m_textels.push_back(Vector3(u, v, w));
 			}
 		}
 		file.close();
@@ -61,6 +65,11 @@ const std::vector<Vector3>& OBJFile::GetVertices()
 const std::vector<Vector3>& OBJFile::GetFaces()
 {
 	return m_faces;
+}
+
+const std::vector<Vector3>& OBJFile::GetTextels()
+{
+	return m_textels;
 }
 
 const std::vector<Vector3>& OBJFile::GetTextureCoordinates()

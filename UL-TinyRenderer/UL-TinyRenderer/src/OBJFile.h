@@ -11,6 +11,7 @@ private:
 
 	// TODO: Find a better way to store infos about faces.
 	std::vector<Vector3> m_faces;
+	std::vector<Vector3> m_textels;
 	std::vector<Vector3> m_textureCoordinates;
 
 public:
@@ -18,6 +19,7 @@ public:
 
 	const std::vector<Vector3>& GetVertices();
 	const std::vector<Vector3>& GetFaces();
+	const std::vector<Vector3>& GetTextels();
 	const std::vector<Vector3>& GetTextureCoordinates();
 
 private:
