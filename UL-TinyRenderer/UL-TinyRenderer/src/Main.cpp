@@ -30,6 +30,11 @@ int main()
 
 	OBJFile file("african_head.obj");
 
+	TGAImage diffuseTexture;
+	diffuseTexture.read_tga_file("african_head_diffuse.tga");
+
+	renderer.SetDiffuseTexture(diffuseTexture);
+
 	renderer.RenderFile(file);
 	renderer.SaveRender("Output.tga");
 
