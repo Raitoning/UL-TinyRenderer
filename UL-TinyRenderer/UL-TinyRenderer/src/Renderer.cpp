@@ -69,8 +69,8 @@ void Renderer::RenderFile(OBJFile& file)
 		);
 
 		Vector3 u = texturesCoordinates[vec.GetX() - 1];
-		Vector3 v = texturesCoordinates[vec.GetX() - 1];
-		Vector3 w = texturesCoordinates[vec.GetX() - 1];
+		Vector3 v = texturesCoordinates[vec.GetY() - 1];
+		Vector3 w = texturesCoordinates[vec.GetZ() - 1];
 
 		float redIntensity = m_ambientLighting.GetX();
 		float greenIntensity = m_ambientLighting.GetY();
@@ -103,7 +103,7 @@ void Renderer::RenderFile(OBJFile& file)
 				blueIntensity = 1.0f;
 			}
 			TGAColor color(redIntensity * 255, greenIntensity * 255, blueIntensity * 255);
-			RenderTriangle(a, b, c, color);
+			RenderTriangle(a, b, c, u, v, w, color);
 		}
 	}
 
@@ -153,6 +153,11 @@ void Renderer::AddLight(Light& light)
 void Renderer::SetAmbientLighting(float r, float g, float b)
 {
 	m_ambientLighting = Vector3(r, g, b);
+}
+
+void Renderer::SetDiffuseTexture(TGAImage texture)
+{
+	m_diffuseTexture = texture;
 }
 
 // Private functions.
@@ -232,7 +237,7 @@ Vector3 Renderer::BarycentricCoordinates(Vector3 & a, Vector3 & b, Vector3 & c, 
 	return Vector3(alpha, beta, gamma);
 }
 
-void Renderer::RenderTriangle(Vector3& a, Vector3& b, Vector3& c, TGAColor& color)
+void Renderer::RenderTriangle(Vector3& a, Vector3& b, Vector3& c, Vector3& u, Vector3& v, Vector3& w, TGAColor& color)
 {
 	int xMin = std::min(a.GetX(), std::min(b.GetX(), c.GetX()));
 	int yMin = std::min(a.GetY(), std::min(b.GetY(), c.GetY()));
@@ -255,8 +260,21 @@ void Renderer::RenderTriangle(Vector3& a, Vector3& b, Vector3& c, TGAColor& colo
 
 				if (z > m_zBuffer[x + y * m_width])
 				{
+					float uu = u.GetX() * depth.GetX();
+					uu += v.GetX() * depth.GetY();
+					uu += w.GetX() * depth.GetZ();
+					uu *= (float)m_diffuseTexture.get_width();
+
+					float vv = u.GetY() * depth.GetX();
+					vv += v.GetY() * depth.GetY();
+					vv += w.GetY() * depth.GetZ();
+					vv *= (float)m_diffuseTexture.get_height();
+
+					// LOG("uu: " << uu << "; vv: " << vv);
+
 					m_zBuffer[x + y * m_width] = z;
-					m_renderOutput.set(x, y, color);
+					TGAColor diffuse(m_diffuseTexture.get(uu, vv));
+					m_renderOutput.set(x, y, diffuse);
 				}
 			}
 		}
