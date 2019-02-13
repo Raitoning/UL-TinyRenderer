@@ -13,6 +13,6 @@ The original assignment repository can be found here: [A brief computer graphics
 - [X] Do a "solid" render of an .obj file. (Triangles filled, no textures)  
 - [X] Add a lighting pass. (Extra: Add the support for multiple lights.)  
 - [X] Add a Z-Buffer.  
-- [ ] Add diffuse texture rendering.  
+- [X] Add diffuse texture rendering.  
 - [ ] Add a projection function.  
 - [ ] Add additionnal map passes. (normal, bump, etc...).  

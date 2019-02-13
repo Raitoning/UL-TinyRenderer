@@ -49,23 +49,31 @@ void Renderer::RenderFile(OBJFile& file)
 {
 	std::vector<Vector3> vertices = file.GetVertices();
 	std::vector<Vector3> faces = file.GetFaces();
+	std::vector<Vector3> textels = file.GetTextels();
+	std::vector<Vector3> texturesCoordinates = file.GetTextureCoordinates();
 
-	for (Vector3 v : faces)
+	int i = 0;
+
+	for (Vector3 vec : faces)
 	{
-		Vector3 a(static_cast<int>(((vertices[v.GetX() - 1].GetX() + 1.f) / 2) * m_width + .5f),
-			static_cast<int>(((vertices[v.GetX() - 1].GetY() + 1.f) / 2) * m_width + .5f),
-			(((vertices[v.GetX() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
+		Vector3 a(static_cast<int>(((vertices[vec.GetX() - 1].GetX() + 1.f) / 2) * m_width + .5f),
+			static_cast<int>(((vertices[vec.GetX() - 1].GetY() + 1.f) / 2) * m_width + .5f),
+			(((vertices[vec.GetX() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
 		);
 
-		Vector3 b(static_cast<int>(((vertices[v.GetY() - 1].GetX() + 1.f) / 2) * m_width + .5f),
-			static_cast<int>(((vertices[v.GetY() - 1].GetY() + 1.f) / 2) * m_width + .5f),
-			(((vertices[v.GetY() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
+		Vector3 b(static_cast<int>(((vertices[vec.GetY() - 1].GetX() + 1.f) / 2) * m_width + .5f),
+			static_cast<int>(((vertices[vec.GetY() - 1].GetY() + 1.f) / 2) * m_width + .5f),
+			(((vertices[vec.GetY() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
 		);
 
-		Vector3 c(static_cast<int>(((vertices[v.GetZ() - 1].GetX() + 1.f) / 2) * m_width + .5f),
-			static_cast<int>(((vertices[v.GetZ() - 1].GetY() + 1.f) / 2) * m_width + .5f),
-			(((vertices[v.GetZ() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
+		Vector3 c(static_cast<int>(((vertices[vec.GetZ() - 1].GetX() + 1.f) / 2) * m_width + .5f),
+			static_cast<int>(((vertices[vec.GetZ() - 1].GetY() + 1.f) / 2) * m_width + .5f),
+			(((vertices[vec.GetZ() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
 		);
+
+		Vector3 u = texturesCoordinates[textels[i].GetX() - 1];
+		Vector3 v = texturesCoordinates[textels[i].GetY() - 1];
+		Vector3 w = texturesCoordinates[textels[i].GetZ() - 1];
 
 		float redIntensity = m_ambientLighting.GetX();
 		float greenIntensity = m_ambientLighting.GetY();
@@ -97,16 +105,17 @@ void Renderer::RenderFile(OBJFile& file)
 			{
 				blueIntensity = 1.0f;
 			}
-			TGAColor color(redIntensity * 255, greenIntensity * 255, blueIntensity * 255);
-			RenderTriangle(a, b, c, color);
+			Vector3 color(redIntensity, greenIntensity, blueIntensity);
+			RenderTriangle(a, b, c, u, v, w, color);
 		}
+		i++;
 	}
 
-	//SaveRender("Output.tga");
+	// SaveRender("Output.tga");
 
-	//// Drawing the zBuffer for debug purposes.
-	//// The zBuffer needs to be normalized before output.
-	//float max = std::numeric_limits<float>::min();
+	// Drawing the zBuffer for debug purposes.
+	// The zBuffer needs to be normalized before output.
+	// float max = std::numeric_limits<float>::min();
 	//for (int y = 0; y < m_height; y++)
 	//{
 	//	for (int x = 0; x < m_width; x++)
@@ -148,6 +157,12 @@ void Renderer::AddLight(Light& light)
 void Renderer::SetAmbientLighting(float r, float g, float b)
 {
 	m_ambientLighting = Vector3(r, g, b);
+}
+
+void Renderer::SetDiffuseTexture(TGAImage texture)
+{
+	m_diffuseTexture = texture;
+	m_diffuseTexture.flip_vertically();
 }
 
 // Private functions.
@@ -227,7 +242,7 @@ Vector3 Renderer::BarycentricCoordinates(Vector3 & a, Vector3 & b, Vector3 & c, 
 	return Vector3(alpha, beta, gamma);
 }
 
-void Renderer::RenderTriangle(Vector3& a, Vector3& b, Vector3& c, TGAColor& color)
+void Renderer::RenderTriangle(Vector3& a, Vector3& b, Vector3& c, Vector3& u, Vector3& v, Vector3& w, Vector3& color)
 {
 	int xMin = std::min(a.GetX(), std::min(b.GetX(), c.GetX()));
 	int yMin = std::min(a.GetY(), std::min(b.GetY(), c.GetY()));
@@ -250,8 +265,20 @@ void Renderer::RenderTriangle(Vector3& a, Vector3& b, Vector3& c, TGAColor& colo
 
 				if (z > m_zBuffer[x + y * m_width])
 				{
+					float uu = u.GetX() * depth.GetX();
+					uu += v.GetX() * depth.GetY();
+					uu += w.GetX() * depth.GetZ();
+					uu *= (float)m_diffuseTexture.get_width();
+
+					float vv = u.GetY() * depth.GetX();
+					vv += v.GetY() * depth.GetY();
+					vv += w.GetY() * depth.GetZ();
+					vv *= (float)m_diffuseTexture.get_height();
+
 					m_zBuffer[x + y * m_width] = z;
-					m_renderOutput.set(x, y, color);
+					TGAColor diffuse(m_diffuseTexture.get(uu, vv));
+					TGAColor finalColor(diffuse[2] * color.GetX(), diffuse[1] * color.GetY(), diffuse[0] * color.GetZ());
+					m_renderOutput.set(x, y, finalColor);
 				}
 			}
 		}
