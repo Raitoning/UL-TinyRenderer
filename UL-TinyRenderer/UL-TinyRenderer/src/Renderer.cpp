@@ -16,6 +16,8 @@ Renderer::Renderer(int width, int height)
 	std::fill(m_zBuffer.begin(), m_zBuffer.end(), std::numeric_limits<float>().min());
 
 	m_ambientLighting = Vector3(0, 0, 0);
+
+	m_camera = Vector3(0, 0, 0);
 }
 
 void Renderer::RenderWireframe(OBJFile& file)
@@ -52,24 +54,50 @@ void Renderer::RenderFile(OBJFile& file)
 	std::vector<Vector3> textels = file.GetTextels();
 	std::vector<Vector3> texturesCoordinates = file.GetTextureCoordinates();
 
+	Matrix projectionMatrix = Matrix::Identity(4);
+	projectionMatrix.Set(2, 3, -1.0f / m_camera.GetZ());
+
 	int i = 0;
 
 	for (Vector3 vec : faces)
 	{
-		Vector3 a(static_cast<int>(((vertices[vec.GetX() - 1].GetX() + 1.f) / 2) * m_width + .5f),
+		//LOG("-----");
+		Vector3 screenA(static_cast<int>(((vertices[vec.GetX() - 1].GetX() + 1.f) / 2) * m_width + .5f),
 			static_cast<int>(((vertices[vec.GetX() - 1].GetY() + 1.f) / 2) * m_width + .5f),
-			(((vertices[vec.GetX() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
+			vertices[vec.GetX() - 1].GetZ()
 		);
 
-		Vector3 b(static_cast<int>(((vertices[vec.GetY() - 1].GetX() + 1.f) / 2) * m_width + .5f),
+		Vector3 screenB(static_cast<int>(((vertices[vec.GetY() - 1].GetX() + 1.f) / 2) * m_width + .5f),
 			static_cast<int>(((vertices[vec.GetY() - 1].GetY() + 1.f) / 2) * m_width + .5f),
-			(((vertices[vec.GetY() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
+			vertices[vec.GetY() - 1].GetZ()
 		);
 
-		Vector3 c(static_cast<int>(((vertices[vec.GetZ() - 1].GetX() + 1.f) / 2) * m_width + .5f),
+		Vector3 screenC(static_cast<int>(((vertices[vec.GetZ() - 1].GetX() + 1.f) / 2) * m_width + .5f),
 			static_cast<int>(((vertices[vec.GetZ() - 1].GetY() + 1.f) / 2) * m_width + .5f),
-			(((vertices[vec.GetZ() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
+			vertices[vec.GetZ() - 1].GetZ()
 		);
+
+		Vector3 worldA = vertices[vec.GetX() - 1];
+		Vector3 worldB = vertices[vec.GetY() - 1];
+		Vector3 worldC = vertices[vec.GetZ() - 1];
+
+		Matrix matrixA(screenA);
+		Matrix matrixB(screenB);
+		Matrix matrixC(screenC);
+
+		Matrix projectedMatrixA = projectionMatrix * matrixA;
+		Matrix projectedMatrixB = projectionMatrix * matrixB;
+		Matrix projectedMatrixC = projectionMatrix * matrixC;
+
+		screenA = projectedMatrixA.ToVector3();
+		screenA.SetZ((((vertices[vec.GetX() - 1].GetZ() + 1.f) / 2) * m_width + .5f));
+
+		screenB = projectedMatrixB.ToVector3();
+		screenB.SetZ((((vertices[vec.GetY() - 1].GetZ() + 1.f) / 2) * m_width + .5f));
+
+		screenC = projectedMatrixC.ToVector3();
+		screenC.SetZ((((vertices[vec.GetZ() - 1].GetZ() + 1.f) / 2) * m_width + .5f));
+
 
 		Vector3 u = texturesCoordinates[textels[i].GetX() - 1];
 		Vector3 v = texturesCoordinates[textels[i].GetY() - 1];
@@ -81,7 +109,7 @@ void Renderer::RenderFile(OBJFile& file)
 
 		for (Light l : m_lights)
 		{
-			float lightIntensity = Lighting(a, b, c, l);
+			float lightIntensity = Lighting(worldA, worldB, worldC, l);
 
 			if (lightIntensity > 0.0f)
 			{
@@ -106,41 +134,41 @@ void Renderer::RenderFile(OBJFile& file)
 				blueIntensity = 1.0f;
 			}
 			Vector3 color(redIntensity, greenIntensity, blueIntensity);
-			RenderTriangle(a, b, c, u, v, w, color);
+			RenderTriangle(screenA, screenB, screenC, u, v, w, color);
 		}
 		i++;
 	}
 
-	// SaveRender("Output.tga");
+	 SaveRender("Output.tga");
 
-	// Drawing the zBuffer for debug purposes.
-	// The zBuffer needs to be normalized before output.
-	// float max = std::numeric_limits<float>::min();
-	//for (int y = 0; y < m_height; y++)
-	//{
-	//	for (int x = 0; x < m_width; x++)
-	//	{
-	//		if (m_zBuffer[x + y * m_width] > max)
-	//		{
-	//			max = m_zBuffer[x + y * m_width];
-	//		}
-	//	}
-	//}
+	 //Drawing the zBuffer for debug purposes.
+	 //The zBuffer needs to be normalized before output.
+	float max = std::numeric_limits<float>::min();
+	for (int y = 0; y < m_height; y++)
+	{
+		for (int x = 0; x < m_width; x++)
+		{
+			if (m_zBuffer[x + y * m_width] > max)
+			{
+				max = m_zBuffer[x + y * m_width];
+			}
+		}
+	}
 
-	//for (int y = 0; y < m_height; y++)
-	//{
-	//	for (int x = 0; x < m_width; x++)
-	//	{
-	//		TGAColor zColor(
-	//			(m_zBuffer[x + y * m_width] / max) * 255,
-	//			(m_zBuffer[x + y * m_width] / max) * 255,
-	//			(m_zBuffer[x + y * m_width] / max) * 255
-	//		);
+	for (int y = 0; y < m_height; y++)
+	{
+		for (int x = 0; x < m_width; x++)
+		{
+			TGAColor zColor(
+				(m_zBuffer[x + y * m_width] / max) * 255,
+				(m_zBuffer[x + y * m_width] / max) * 255,
+				(m_zBuffer[x + y * m_width] / max) * 255
+			);
 
-	//		m_renderOutput.set(x, y, zColor);
-	//	}
-	//}
-	//SaveRender("zBuffer.tga");
+			m_renderOutput.set(x, y, zColor);
+		}
+	}
+	SaveRender("zBuffer.tga");
 }
 
 void Renderer::SaveRender(const char * fileName)
@@ -163,6 +191,11 @@ void Renderer::SetDiffuseTexture(TGAImage texture)
 {
 	m_diffuseTexture = texture;
 	m_diffuseTexture.flip_vertically();
+}
+
+void Renderer::SetCamera(float x, float y, float z)
+{
+	m_camera = Vector3(x, y, z);
 }
 
 // Private functions.
@@ -244,15 +277,16 @@ Vector3 Renderer::BarycentricCoordinates(Vector3 & a, Vector3 & b, Vector3 & c, 
 
 void Renderer::RenderTriangle(Vector3& a, Vector3& b, Vector3& c, Vector3& u, Vector3& v, Vector3& w, Vector3& color)
 {
-	int xMin = std::min(a.GetX(), std::min(b.GetX(), c.GetX()));
-	int yMin = std::min(a.GetY(), std::min(b.GetY(), c.GetY()));
-	int xMax = std::max(a.GetX(), std::max(b.GetX(), c.GetX()));
-	int yMax = std::max(a.GetY(), std::max(b.GetY(), c.GetY()));
+	int xMin = std::max(std::min(a.GetX(), std::min(b.GetX(), c.GetX())), 0.0f);
+	int yMin = std::max(std::min(a.GetY(), std::min(b.GetY(), c.GetY())), 0.0f);
+	int xMax = std::min(std::max(a.GetX(), std::max(b.GetX(), c.GetX())), m_renderOutput.get_width() - 1.0f);
+	int yMax = std::min(std::max(a.GetY(), std::max(b.GetY(), c.GetY())), m_renderOutput.get_height() - 1.0f);
 
 	for (int x = xMin; x < xMax; x++)
 	{
 		for (int y = yMin; y < yMax; y++)
 		{
+
 			Vector3 point(x, y, 1);
 
 			Vector3 depth = BarycentricCoordinates(a, b, c, point);

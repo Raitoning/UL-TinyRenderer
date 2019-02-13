@@ -28,6 +28,8 @@ int main()
 	renderer.AddLight(redLight);
 	renderer.SetAmbientLighting(0.125f, 0.125f, 0.125f);
 
+	renderer.SetCamera(0, 0, 3);
+
 	OBJFile file("african_head.obj");
 
 	TGAImage diffuseTexture;
@@ -36,7 +38,7 @@ int main()
 	renderer.SetDiffuseTexture(diffuseTexture);
 
 	renderer.RenderFile(file);
-	renderer.SaveRender("Output.tga");
+	//renderer.SaveRender("Output.tga");
 
 	LOG("Press any key to continue...");
 

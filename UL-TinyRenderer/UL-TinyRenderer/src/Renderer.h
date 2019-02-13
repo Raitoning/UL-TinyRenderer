@@ -4,6 +4,7 @@
 #include "TGAImage.h"
 #include "OBJFile.h"
 #include "Light.h"
+#include "Matrix.h"
 
 class Renderer
 {
@@ -18,6 +19,7 @@ private:
 	std::vector<float> m_zBuffer;
 	Vector3 m_ambientLighting;
 	TGAImage m_diffuseTexture;
+	Vector3 m_camera;
 
 	// Functions.
 public:
@@ -29,6 +31,7 @@ public:
 	void AddLight(Light& light);
 	void SetAmbientLighting(float r, float g, float b);
 	void SetDiffuseTexture(TGAImage texture);
+	void SetCamera(float x, float y, float z);
 
 private:
 
