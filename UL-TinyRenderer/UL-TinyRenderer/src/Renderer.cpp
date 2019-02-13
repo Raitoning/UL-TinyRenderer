@@ -49,23 +49,28 @@ void Renderer::RenderFile(OBJFile& file)
 {
 	std::vector<Vector3> vertices = file.GetVertices();
 	std::vector<Vector3> faces = file.GetFaces();
+	std::vector<Vector3> texturesCoordinates = file.GetTextureCoordinates();
 
-	for (Vector3 v : faces)
+	for (Vector3 vec : faces)
 	{
-		Vector3 a(static_cast<int>(((vertices[v.GetX() - 1].GetX() + 1.f) / 2) * m_width + .5f),
-			static_cast<int>(((vertices[v.GetX() - 1].GetY() + 1.f) / 2) * m_width + .5f),
-			(((vertices[v.GetX() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
+		Vector3 a(static_cast<int>(((vertices[vec.GetX() - 1].GetX() + 1.f) / 2) * m_width + .5f),
+			static_cast<int>(((vertices[vec.GetX() - 1].GetY() + 1.f) / 2) * m_width + .5f),
+			(((vertices[vec.GetX() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
 		);
 
-		Vector3 b(static_cast<int>(((vertices[v.GetY() - 1].GetX() + 1.f) / 2) * m_width + .5f),
-			static_cast<int>(((vertices[v.GetY() - 1].GetY() + 1.f) / 2) * m_width + .5f),
-			(((vertices[v.GetY() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
+		Vector3 b(static_cast<int>(((vertices[vec.GetY() - 1].GetX() + 1.f) / 2) * m_width + .5f),
+			static_cast<int>(((vertices[vec.GetY() - 1].GetY() + 1.f) / 2) * m_width + .5f),
+			(((vertices[vec.GetY() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
 		);
 
-		Vector3 c(static_cast<int>(((vertices[v.GetZ() - 1].GetX() + 1.f) / 2) * m_width + .5f),
-			static_cast<int>(((vertices[v.GetZ() - 1].GetY() + 1.f) / 2) * m_width + .5f),
-			(((vertices[v.GetZ() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
+		Vector3 c(static_cast<int>(((vertices[vec.GetZ() - 1].GetX() + 1.f) / 2) * m_width + .5f),
+			static_cast<int>(((vertices[vec.GetZ() - 1].GetY() + 1.f) / 2) * m_width + .5f),
+			(((vertices[vec.GetZ() - 1].GetZ() + 1.f) / 2) * m_width + .5f)
 		);
+
+		Vector3 u = texturesCoordinates[vec.GetX() - 1];
+		Vector3 v = texturesCoordinates[vec.GetX() - 1];
+		Vector3 w = texturesCoordinates[vec.GetX() - 1];
 
 		float redIntensity = m_ambientLighting.GetX();
 		float greenIntensity = m_ambientLighting.GetY();

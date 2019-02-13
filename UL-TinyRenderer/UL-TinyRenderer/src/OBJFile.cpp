@@ -26,6 +26,17 @@ OBJFile::OBJFile(const char* fileName)
 				m_vertices.push_back(Vector3(x, y, z));
 			}
 
+			if (line.find("vt ", 0) == 0)
+			{
+				std::vector<std::string> textureCoordinates = Explode(line, ' ');
+
+				float x = std::atof(textureCoordinates[1].c_str());
+				float y = std::atof(textureCoordinates[2].c_str());
+				float z = std::atof(textureCoordinates[3].c_str());
+
+				m_textureCoordinates.push_back(Vector3(x, y, z));
+			}
+
 			if (line.find("f ", 0) == 0)
 			{
 				std::vector<std::string> vertex;
@@ -50,6 +61,11 @@ const std::vector<Vector3>& OBJFile::GetVertices()
 const std::vector<Vector3>& OBJFile::GetFaces()
 {
 	return m_faces;
+}
+
+const std::vector<Vector3>& OBJFile::GetTextureCoordinates()
+{
+	return m_textureCoordinates;
 }
 
 // Function to split a string into multiple strings.
