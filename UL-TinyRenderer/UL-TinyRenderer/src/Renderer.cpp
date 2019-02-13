@@ -105,7 +105,7 @@ void Renderer::RenderFile(OBJFile& file)
 			{
 				blueIntensity = 1.0f;
 			}
-			TGAColor color(redIntensity * 255, greenIntensity * 255, blueIntensity * 255);
+			Vector3 color(redIntensity, greenIntensity, blueIntensity);
 			RenderTriangle(a, b, c, u, v, w, color);
 		}
 		i++;
@@ -242,7 +242,7 @@ Vector3 Renderer::BarycentricCoordinates(Vector3 & a, Vector3 & b, Vector3 & c, 
 	return Vector3(alpha, beta, gamma);
 }
 
-void Renderer::RenderTriangle(Vector3& a, Vector3& b, Vector3& c, Vector3& u, Vector3& v, Vector3& w, TGAColor& color)
+void Renderer::RenderTriangle(Vector3& a, Vector3& b, Vector3& c, Vector3& u, Vector3& v, Vector3& w, Vector3& color)
 {
 	int xMin = std::min(a.GetX(), std::min(b.GetX(), c.GetX()));
 	int yMin = std::min(a.GetY(), std::min(b.GetY(), c.GetY()));
@@ -277,7 +277,8 @@ void Renderer::RenderTriangle(Vector3& a, Vector3& b, Vector3& c, Vector3& u, Ve
 
 					m_zBuffer[x + y * m_width] = z;
 					TGAColor diffuse(m_diffuseTexture.get(uu, vv));
-					m_renderOutput.set(x, y, diffuse);
+					TGAColor finalColor(diffuse[2] * color.GetX(), diffuse[1] * color.GetY(), diffuse[0] * color.GetZ());
+					m_renderOutput.set(x, y, finalColor);
 				}
 			}
 		}

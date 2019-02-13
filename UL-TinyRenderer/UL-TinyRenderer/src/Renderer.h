@@ -35,5 +35,5 @@ private:
 	void RenderLine(int x1, int y1, int x2, int y2);
 	float Lighting(Vector3& a, Vector3& b, Vector3& c, Light& light);
 	Vector3 BarycentricCoordinates(Vector3& a, Vector3& b, Vector3& c, Vector3& p);
-	void RenderTriangle(Vector3& a, Vector3& b, Vector3& c, Vector3& u, Vector3& v, Vector3& w, TGAColor& color);
+	void RenderTriangle(Vector3& a, Vector3& b, Vector3& c, Vector3& u, Vector3& v, Vector3& w, Vector3& color);
 };
