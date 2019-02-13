@@ -131,6 +131,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Light.cpp" />
+    <ClCompile Include="src\Matrix.cpp" />
     <ClCompile Include="src\OBJFile.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Main.cpp" />
@@ -139,6 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Light.h" />
+    <ClInclude Include="src\Matrix.h" />
     <ClInclude Include="src\OBJFile.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\TGAImage.h" />
